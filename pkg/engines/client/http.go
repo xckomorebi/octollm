@@ -143,7 +143,7 @@ func (e *HTTPEndpoint) Process(req *octollm.Request) (*octollm.Response, error) 
 		return nil, fmt.Errorf("new request error: %w", err)
 	}
 
-	httpReq.Header = req.Header
+	httpReq.Header = req.Header.Clone()
 	if e.reqModifier != nil {
 		httpReq = e.reqModifier(req, httpReq)
 	}
