@@ -172,6 +172,9 @@ func (r ChatCompletionRequest) String() string {
 	if r.TopK != nil {
 		fmt.Fprintf(w, "  TopK: %d\n", *r.TopK)
 	}
+	if r.N != nil {
+		fmt.Fprintf(w, "  N: %d\n", *r.N)
+	}
 	if len(r.Stop) > 0 {
 		fmt.Fprintf(w, "  Stop: %v\n", r.Stop)
 	}

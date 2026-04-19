@@ -16,6 +16,7 @@ type ChatCompletionRequest struct {
 	Stop        []string   `json:"stop,omitempty"`
 	Stream      *bool      `json:"stream,omitempty"`
 	Tools       []*Tool    `json:"tools,omitempty"` // 可用函数工具列表
+	N           *int       `json:"n,omitempty"`
 
 	ToolChoice *ToolChoice `json:"tool_choice,omitempty"` // 指定强制调用的函数（可选）
 }
