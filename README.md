@@ -9,18 +9,18 @@ OctoLLM serves two main purposes:
 ## ✨ Features & Roadmap
 
 ### Implemented Features
-- [x] **Multi-Protocol Support**: Supports OpenAI-compatible `chat/completions` and Claude `messages` interface forwarding.
-- [x] **Load Balancing**: Configurable weighted round-robin load balancing across multiple backends.
-- [x] **Rule Engine**: Powerful routing and logic based on expressions (e.g., checking request parameters).
+- [x] **Multi-Protocol Support**: Forwards OpenAI `chat/completions`, `completions` (legacy), `embeddings`, `rerank`, `responses`, Claude `messages`, and Google Vertex AI `generateContent`.
+- [x] **Load Balancing**: Configurable weighted round-robin across backends, plus shard-key-aware routing for sticky distribution.
+- [x] **Rule Engine**: Powerful routing and logic based on `expr-lang` expressions (e.g., checking request parameters).
 - [x] **Security**: API Key authentication and authorization, integratable with the rule engine for granular control.
-- [x] **Traffic Body Rewrite**: Request and response rewriting and transformation capabilities.
+- [x] **Traffic Body Rewrite**: JSON-path-based request, response, and stream-chunk rewriting.
+- [x] **Rate Limiting**: Concurrency, request-rate, and token-rate limiters, including a Redis-backed distributed token bucket.
+- [x] **Content Moderation**: Pluggable adapters for Ali, Netease, Claude, OpenAI, and Vertex moderation services.
+- [x] **Traffic Replication**: Async mirroring of requests to a secondary upstream for shadow testing.
 - [x] **Extensible Design**: Modular `Engine` interface allowing arbitrary nesting and composition of features.
-- [x] **Protocol Conversion**: Support serving Claude `messages` protocol from OpenAI `chat/completions` backend.
+- [x] **Protocol Conversion**: Serve Claude `messages` protocol from an OpenAI `chat/completions` backend.
 
 ### Planned Features
-- [ ] **Content Moderation**: Integration with external services for content safety.
-- [ ] **Advanced Rate Limiting**: Distributed rate limiting capabilities (e.g., Redis-based).
-- [ ] **Comprehensive Unit Tests**: Expanding test coverage for stability.
 - [ ] **Dynamic Configuration**: Loading configuration from relational databases.
 
 ## 🔧 Getting Started
@@ -56,10 +56,10 @@ func main() {
 	mux.Handle("/v1/chat/completions", octollm.ChatCompletionsHandler(ep))
 
 	// Create a converter to convert OpenAI-compatible API to Claude messages API
-	conv := converter.NewChatCompletionsToClaudeMessages(ep)
+	conv := converter.NewChatCompletionToClaudeMessages(ep)
 	mux.Handle("/v1/messages", octollm.MessagesHandler(conv))
 
-	// Create a rewrite engine to force the model to use kimi-k2-instruct
+	// Create a rewrite engine to force streaming on the underlying request
 	rewrite := engines.NewRewriteEngine(conv, &engines.RewritePolicy{
 		SetKeys: map[string]any{"stream": true},
 	}, nil, nil)
