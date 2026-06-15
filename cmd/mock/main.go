@@ -56,10 +56,14 @@ func main() {
 
 	openaiEngine := mock.NewOpenAIWithFixedOutput(defaultOutput, defaultTTFT, defaultTPOT)
 	claudeEngine := mock.NewClaudeWithFixedOutput(defaultOutput, defaultTTFT, defaultTPOT)
+	geminiEngine := mock.NewGeminiWithFixedOutput(defaultOutput, defaultTTFT, defaultTPOT)
 
 	mux := http.NewServeMux()
 	mux.Handle("/v1/chat/completions", octollm.ChatCompletionsHandler(openaiEngine))
 	mux.Handle("/v1/messages", octollm.MessagesHandler(claudeEngine))
+	// VertexAIHandler reads the model and action from the URL path
+	// (e.g. /v1beta/models/gemini-2.5-pro:streamGenerateContent) and honors ?alt=sse.
+	mux.Handle("/v1beta/models/{model_action}", octollm.VertexAIHandler(geminiEngine))
 
 	slog.Info("listening :8090")
 	err := http.ListenAndServe(":8090", mux)
